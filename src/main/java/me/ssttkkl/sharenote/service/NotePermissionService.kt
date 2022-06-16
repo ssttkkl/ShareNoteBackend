@@ -36,14 +36,15 @@ class NotePermissionService(
     }
 
     @Transactional
-    fun putNotePermission(dto: NotePermissionDto, ownerUserID: Int) {
+    fun putNotePermission(dto: NotePermissionDto, operatorUserID: Int) {
         val note = noteRepo.findById(dto.noteID).orElseThrow { NoteNotFoundException() }
         if (note.isDeleted)
             throw NoteNotFoundException()
 
-        if (dto.userID == ownerUserID)
+        // owner can modify any permission except self's
+        if (dto.userID == operatorUserID)
             throw ModifyOwnerNotePermissionException()
-        if (note.ownerUser.id != ownerUserID)
+        if (note.ownerUser.id != operatorUserID)
             throw NoteForbiddenException()
 
         val permission = NotePermission(
@@ -100,6 +101,9 @@ class NotePermissionService(
         permission.state = NotePermission.State.DeletedBySelf
         permissionRepo.save(permission)
 
-        note.tags.removeIf { it.user.id == id.userID }
+        // delete user's all tag
+        note.tags.removeIf {
+            it.user.id == id.userID
+        }
     }
 }

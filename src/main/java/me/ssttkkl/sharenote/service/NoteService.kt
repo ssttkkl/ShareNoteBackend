@@ -145,6 +145,7 @@ class NoteService(
         if (!note.isDeleted && note.ownerUser.id == userID) {
             val now = Instant.now()
             note.deletedAt = now
+            // delete all permissions
             note.permissions.forEach {
                 if (it.user.id == userID)
                     it.state = NotePermission.State.DeletedBySelf
@@ -153,7 +154,14 @@ class NoteService(
                 it.deletedAt = now
                 it.deletedAtVersion = note.latestVersion
             }
-            note.tags.removeIf { it.user.id == userID }
+            // delete all invites
+            note.invites.forEach {
+                it.deletedAt = now
+            }
+            // delete owner's all tag
+            note.tags.removeIf {
+                it.user.id == userID
+            }
             noteRepo.save(note)
         } else {
             throw NoteForbiddenException()

@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.stereotype.Repository
 
 @Repository
-interface NoteRepository : JpaRepository<Note, Int>, JpaSpecificationExecutor<Note>
+interface NoteRepository : JpaRepository<Note, Int>, JpaSpecificationExecutor<Note> {
+}

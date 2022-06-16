@@ -6,7 +6,6 @@ import me.ssttkkl.sharenote.exception.NoteNotFoundException
 import me.ssttkkl.sharenote.model.entity.NoteInvite
 import me.ssttkkl.sharenote.model.entity.NotePermission
 import me.ssttkkl.sharenote.model.entity.isDeleted
-import me.ssttkkl.sharenote.model.entity.isExpired
 import me.ssttkkl.sharenote.model.view.NoteInviteView
 import me.ssttkkl.sharenote.model.view.toView
 import me.ssttkkl.sharenote.repository.NoteInviteRepository
@@ -15,6 +14,8 @@ import me.ssttkkl.sharenote.repository.NoteRepository
 import me.ssttkkl.sharenote.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Service
@@ -37,11 +38,14 @@ class NoteInviteService(
         if (note.ownerUser.id != userID)
             throw NoteForbiddenException()
 
+        val now = Instant.now()
         val invite = inviteRepo.save(
             NoteInvite(
                 id = UUID.randomUUID().toString().replace("-", ""),
                 note = note,
-                readonly = readonly
+                readonly = readonly,
+                createdAt = now,
+                expiresAt = now.plus(3, ChronoUnit.DAYS)
             )
         )
 
@@ -53,7 +57,7 @@ class NoteInviteService(
         inviteID: String
     ): NoteInviteView {
         val invite = inviteRepo.findById(inviteID).orElseThrow { NoteInviteNotFoundException() }
-        if (invite.isExpired || invite.note.isDeleted) {
+        if (invite.state != NoteInvite.State.Available) {
             throw NoteInviteNotFoundException()
         }
         return invite.toView(withSummary = true)
@@ -65,7 +69,7 @@ class NoteInviteService(
         userID: Int
     ) {
         val invite = inviteRepo.findById(inviteID).orElseThrow { NoteInviteNotFoundException() }
-        if (invite.isExpired || invite.note.isDeleted) {
+        if (invite.state != NoteInvite.State.Available) {
             throw NoteInviteNotFoundException()
         }
 
@@ -83,13 +87,14 @@ class NoteInviteService(
         userID: Int
     ) {
         val invite = inviteRepo.findById(inviteID).orElseThrow { NoteInviteNotFoundException() }
-        if (invite.isExpired || invite.note.isDeleted) {
+        if (invite.state != NoteInvite.State.Available) {
             throw NoteInviteNotFoundException()
         }
         if (invite.note.ownerUser.id != userID) {
             throw NoteForbiddenException()
         }
 
-        inviteRepo.delete(invite)
+        invite.deletedAt = Instant.now()
+        inviteRepo.save(invite)
     }
 }

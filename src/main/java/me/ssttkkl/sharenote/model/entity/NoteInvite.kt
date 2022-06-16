@@ -2,7 +2,6 @@ package me.ssttkkl.sharenote.model.entity
 
 import org.hibernate.Hibernate
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import javax.persistence.*
 
 @Entity
@@ -23,16 +22,29 @@ data class NoteInvite(
     val createdAt: Instant,
 
     @Column(name = "expires_at", nullable = false)
-    val expiresAt: Instant
+    val expiresAt: Instant,
+
+    @Column(name = "deleted_at")
+    var deletedAt: Instant? = null,
 ) {
 
-    constructor(id: String, note: Note, readonly: Boolean, createdAt: Instant = Instant.now()) : this(
-        id = id,
-        note = note,
-        readonly = readonly,
-        createdAt = createdAt,
-        expiresAt = createdAt.plus(3, ChronoUnit.DAYS)
-    )
+    enum class State {
+        Available, Expired, Deleted
+    }
+
+    val isExpired
+        get() = expiresAt.isBefore(Instant.now())
+
+    val isDeleted
+        get() = deletedAt != null
+
+    val state: State
+        get() = if (isExpired)
+            State.Expired
+        else if (isDeleted)
+            State.Deleted
+        else
+            State.Available
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,6 +61,3 @@ data class NoteInvite(
         return this::class.simpleName + "(id = $id )"
     }
 }
-
-val NoteInvite.isExpired
-    get() = expiresAt.isBefore(Instant.now())
