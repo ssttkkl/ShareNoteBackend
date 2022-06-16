@@ -1,0 +1,25 @@
+server:
+  servlet:
+    contextPath: /api/v1
+  port: ${PORT:10808}
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+#    show-sql: true
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+jwt:
+  private-key: classpath:app.key
+  public-key: classpath:app.pub
+  expires-in: 3600
+  issuer: ${JWT_ISSUER:me.ssttkkl.sharenote}
+
