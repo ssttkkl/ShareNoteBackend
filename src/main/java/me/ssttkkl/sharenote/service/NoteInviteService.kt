@@ -35,7 +35,7 @@ class NoteInviteService(
         val note = noteRepo.findById(noteID).orElseThrow { NoteNotFoundException() }
         if (note.isDeleted)
             throw NoteNotFoundException()
-        if (note.ownerUser.id != userID)
+        if (note.owner.id != userID)
             throw NoteForbiddenException()
 
         val now = Instant.now()
@@ -90,7 +90,7 @@ class NoteInviteService(
         if (invite.state != NoteInvite.State.Available) {
             throw NoteInviteNotFoundException()
         }
-        if (invite.note.ownerUser.id != userID) {
+        if (invite.note.owner.id != userID) {
             throw NoteForbiddenException()
         }
 

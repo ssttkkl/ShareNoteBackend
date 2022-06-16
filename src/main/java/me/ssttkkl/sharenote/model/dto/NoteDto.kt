@@ -7,5 +7,4 @@ data class NoteDto(
     val title: String,
     val content: String,
     val version: Int = 0,
-    val readonly: Boolean? = null,
 ) : Serializable

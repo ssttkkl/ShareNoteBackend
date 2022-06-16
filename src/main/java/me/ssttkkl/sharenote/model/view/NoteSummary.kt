@@ -11,5 +11,5 @@ data class NoteSummary(
 fun Note.toNoteSummary() = NoteSummary(
     id = id,
     title = latestVersion?.title ?: error("no version"),
-    ownerUser = ownerUser.toView()
+    ownerUser = owner.toView()
 )

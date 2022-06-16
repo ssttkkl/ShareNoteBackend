@@ -1,10 +1,8 @@
 package me.ssttkkl.sharenote.controller
 
 import me.ssttkkl.sharenote.model.view.Authentication
-import me.ssttkkl.sharenote.model.view.UserView
-import me.ssttkkl.sharenote.payload.LoginPayload
-import me.ssttkkl.sharenote.payload.RefreshPayload
-import me.ssttkkl.sharenote.payload.RegisterPayload
+import me.ssttkkl.sharenote.model.dto.LoginPayload
+import me.ssttkkl.sharenote.model.dto.RefreshPayload
 import me.ssttkkl.sharenote.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -41,13 +39,5 @@ class AuthController(
         } catch (e: BadCredentialsException) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
-    }
-
-    @PostMapping("/auth/register")
-    fun register(
-        @RequestBody body: RegisterPayload
-    ): ResponseEntity<UserView> {
-        val user = authService.register(body)
-        return ResponseEntity.ok(user)
     }
 }

@@ -81,7 +81,7 @@ class NoteService(
     ): NoteView {
         val user = userRepo.getReferenceById(userID)
 
-        var note = Note(ownerUser = user)
+        var note = Note(owner = user)
         note = noteRepo.save(note)
 
         note.permissions.add(NotePermission(note = note, user = user))
@@ -104,7 +104,6 @@ class NoteService(
         noteID: Int,
         dto: NoteDto,
         userID: Int,
-        ignoreConflict: Boolean,
     ): NoteView {
         val user = userRepo.getReferenceById(userID)
         var note = noteRepo.findById(noteID).orElseThrow { NoteNotFoundException() }
@@ -117,7 +116,7 @@ class NoteService(
 
         // check version
         val prevVersion = note.latestVersion
-        if (!ignoreConflict && prevVersion?.version != dto.version) {
+        if (dto.version > 0 && prevVersion?.version != dto.version) {
             throw NoteVersionConflictException()
         }
 
@@ -142,7 +141,7 @@ class NoteService(
         userID: Int
     ) {
         val note = noteRepo.findById(noteID).orElseThrow { NoteNotFoundException() }
-        if (!note.isDeleted && note.ownerUser.id == userID) {
+        if (!note.isDeleted && note.owner.id == userID) {
             val now = Instant.now()
             note.deletedAt = now
             // delete all permissions

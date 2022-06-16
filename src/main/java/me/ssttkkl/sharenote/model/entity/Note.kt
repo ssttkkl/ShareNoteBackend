@@ -28,7 +28,7 @@ data class Note(
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_user_id", nullable = false, updatable = false)
-    val ownerUser: User,
+    val owner: User,
 
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),

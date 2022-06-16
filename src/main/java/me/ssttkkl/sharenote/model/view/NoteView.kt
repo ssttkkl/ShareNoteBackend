@@ -35,7 +35,7 @@ fun Note.toView(uid: Int, version: NoteVersion? = null): NoteView {
         title = version.title,
         content = version.content,
         tags = tags.filter { it.user.id == uid }.mapTo(mutableSetOf()) { it.tagName },
-        ownerUser = ownerUser.toView(),
+        ownerUser = owner.toView(),
         modifiedBy = version.creator.toView(),
         permission = permission.toView(),
         version = version.version,

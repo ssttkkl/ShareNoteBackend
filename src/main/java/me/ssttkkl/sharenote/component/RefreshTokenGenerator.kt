@@ -21,7 +21,7 @@ class RefreshTokenGenerator {
 
         val tokenValue = buildString {
             for (i in 0 until 32) {
-                append(bytes[i].toString(16))
+                append(bytes[i].toUByte().toString(16).padStart(2, '0'))
             }
         }
 

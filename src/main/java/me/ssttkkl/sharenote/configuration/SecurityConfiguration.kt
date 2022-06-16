@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import me.ssttkkl.sharenote.service.AuthService
+import me.ssttkkl.sharenote.service.UserService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.security.authentication.AuthenticationManager
@@ -33,11 +34,12 @@ import java.security.interfaces.RSAPublicKey
 
 
 @EnableWebSecurity
-class SecurityConfiguration(val authService: AuthService) : WebSecurityConfigurerAdapter() {
+class SecurityConfiguration(val userService: UserService) : WebSecurityConfigurerAdapter() {
 
     companion object {
         private val ignore = arrayOf(
             "/auth/**",
+            "/users",
             "/swagger-resources/**",
             "/swagger-ui/**",
             "/v3/api-docs",
@@ -77,7 +79,7 @@ class SecurityConfiguration(val authService: AuthService) : WebSecurityConfigure
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.userDetailsService(authService)
+        auth.userDetailsService(userService)
     }
 
     // Expose authentication manager bean

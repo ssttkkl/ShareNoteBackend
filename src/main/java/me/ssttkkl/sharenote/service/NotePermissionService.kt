@@ -30,7 +30,7 @@ class NotePermissionService(
         val note = noteRepo.findById(noteID).orElseThrow { NoteNotFoundException() }
         if (note.isDeleted)
             throw NoteNotFoundException()
-        if (note.ownerUser.id != userID)
+        if (note.owner.id != userID)
             throw NoteForbiddenException()
         return permissionRepo.findByNoteIdExcludingOwner(noteID, pageable).map { it.toViewWithUser() }.toView()
     }
@@ -44,7 +44,7 @@ class NotePermissionService(
         // owner can modify any permission except self's
         if (dto.userID == operatorUserID)
             throw ModifyOwnerNotePermissionException()
-        if (note.ownerUser.id != operatorUserID)
+        if (note.owner.id != operatorUserID)
             throw NoteForbiddenException()
 
         val permission = NotePermission(
@@ -61,7 +61,7 @@ class NotePermissionService(
         if (note.isDeleted)
             throw NoteNotFoundException()
 
-        if (operatorUserID == note.ownerUser.id) {
+        if (operatorUserID == note.owner.id) {
             if (id.userID == operatorUserID) {
                 // owner can modify any permission except self's
                 throw ModifyOwnerNotePermissionException()
@@ -87,7 +87,7 @@ class NotePermissionService(
     fun deleteSelfNotePermission(id: NotePermission.PrimaryKey) {
         val note = noteRepo.findById(id.noteID).orElseThrow { NoteNotFoundException() }
 
-        if (id.userID == note.ownerUser.id) {
+        if (id.userID == note.owner.id) {
             // owner cannot modify self's permission
             throw ModifyOwnerNotePermissionException()
         }

@@ -49,7 +49,7 @@ class NoteController(
     }
 
     @GetMapping("notes/{noteID}/versions/{version}")
-    fun getNoteVersionByID(
+    fun getNoteSpecifiedVersionByID(
         authentication: Authentication,
         @PathVariable noteID: Int,
         @PathVariable version: Int,
@@ -85,9 +85,8 @@ class NoteController(
         authentication: Authentication,
         @RequestBody dto: NoteDto,
         @PathVariable noteID: Int,
-        @RequestParam ignoreConflict: Boolean,
     ): ResponseEntity<NoteView> {
-        val note = noteService.modifyNote(noteID, dto, authentication.userID, ignoreConflict)
+        val note = noteService.modifyNote(noteID, dto, authentication.userID)
         return ResponseEntity.ok(note)
     }
 

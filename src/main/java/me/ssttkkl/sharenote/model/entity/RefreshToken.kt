@@ -8,7 +8,7 @@ import javax.persistence.*
 @Table(name = "refresh_token")
 data class RefreshToken(
     @Id
-    @Column(name = "token", nullable = false, updatable = false, length = 24)
+    @Column(name = "token", nullable = false, updatable = false, length = 64)
     val tokenValue: String,
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
