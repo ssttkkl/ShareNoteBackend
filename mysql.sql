@@ -1,4 +1,10 @@
-create table if not exists user
+drop database if exists sharenote;
+
+create database sharenote;
+
+use sharenote;
+
+create table user
 (
     user_id     int auto_increment
         primary key,
@@ -9,42 +15,31 @@ create table if not exists user
     username    varchar(24)  not null
 );
 
-create table if not exists note
+create table note
 (
     note_id           int auto_increment
         primary key,
     created_at        datetime(6) not null,
+    deleted_at        datetime(6) null,
     latest_version_id int         null,
     owner_user_id     int         not null,
     constraint FKlukm6691qldoe402oc011pd3q
         foreign key (owner_user_id) references user (user_id)
 );
 
-create table if not exists note_invite
+create table note_invite
 (
     invite_id  varchar(36) not null
         primary key,
-    note_id    int         not null,
-    readonly   bit         not null,
     created_at datetime(6) not null,
     expires_at datetime(6) not null,
+    readonly   bit         not null,
+    note_id    int         not null,
     constraint FK7d5ppti2wgxcowlwt2m45ajoy
         foreign key (note_id) references note (note_id)
 );
 
-create table if not exists note_permission
-(
-    note_id  int not null,
-    user_id  int not null,
-    readonly bit not null,
-    primary key (note_id, user_id),
-    constraint FK59i27s2xcum7sd9si0ks7538k
-        foreign key (note_id) references note (note_id),
-    constraint FKgm9dcnl7ep4k4p6wxt5opd4rp
-        foreign key (user_id) references user (user_id)
-);
-
-create table if not exists note_version
+create table note_version
 (
     note_version_id int auto_increment
         primary key,
@@ -64,7 +59,25 @@ alter table note
     add constraint FKx9u7nv3tcdryjeq2qatcll8o
         foreign key (latest_version_id) references note_version (note_version_id);
 
-create table if not exists refresh_token
+create table note_permission
+(
+    note_id               int         not null,
+    user_id               int         not null,
+    created_at            datetime(6) not null,
+    deleted_at            datetime(6) null,
+    readonly              bit         not null,
+    state                 int         not null,
+    deleted_at_version_id int         null,
+    primary key (note_id, user_id),
+    constraint FK59i27s2xcum7sd9si0ks7538k
+        foreign key (note_id) references note (note_id),
+    constraint FKgm9dcnl7ep4k4p6wxt5opd4rp
+        foreign key (user_id) references user (user_id),
+    constraint FKoxr6k3b0g8n9amlclakyvxjfg
+        foreign key (deleted_at_version_id) references note_version (note_version_id)
+);
+
+create table refresh_token
 (
     token   varchar(255) not null
         primary key,
@@ -73,7 +86,7 @@ create table if not exists refresh_token
         foreign key (user_id) references user (user_id)
 );
 
-create table if not exists tag
+create table tag
 (
     tag_id   int auto_increment
         primary key,
@@ -83,7 +96,7 @@ create table if not exists tag
         foreign key (user_id) references user (user_id)
 );
 
-create table if not exists note_tag
+create table note_tag
 (
     note_id int not null,
     tag_id  int not null,
