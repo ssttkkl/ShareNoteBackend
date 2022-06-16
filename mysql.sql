@@ -4,7 +4,7 @@ create database sharenote;
 
 use sharenote;
 
-create table if not exists user
+create table user
 (
     user_id     int auto_increment
         primary key,
@@ -15,7 +15,7 @@ create table if not exists user
     username    varchar(24)  not null
 );
 
-create table if not exists note
+create table note
 (
     note_id           int auto_increment
         primary key,
@@ -27,11 +27,12 @@ create table if not exists note
         foreign key (owner_user_id) references user (user_id)
 );
 
-create table if not exists note_invite
+create table note_invite
 (
     invite_id  varchar(36) not null
         primary key,
     created_at datetime(6) not null,
+    deleted_at datetime(6) null,
     expires_at datetime(6) not null,
     readonly   bit         not null,
     note_id    int         not null,
@@ -39,7 +40,7 @@ create table if not exists note_invite
         foreign key (note_id) references note (note_id)
 );
 
-create table if not exists note_version
+create table note_version
 (
     note_version_id int auto_increment
         primary key,
@@ -59,7 +60,7 @@ alter table note
     add constraint FKx9u7nv3tcdryjeq2qatcll8o
         foreign key (latest_version_id) references note_version (note_version_id);
 
-create table if not exists note_permission
+create table note_permission
 (
     note_id               int         not null,
     user_id               int         not null,
@@ -77,18 +78,18 @@ create table if not exists note_permission
         foreign key (deleted_at_version_id) references note_version (note_version_id)
 );
 
-create table if not exists refresh_token
+create table refresh_token
 (
-    token      varchar(255) not null
+    token      varchar(64) not null
         primary key,
-    user_id    int          not null,
-    created_at datetime(6)  not null,
-    expires_at datetime(6)  not null,
+    created_at datetime(6) not null,
+    expires_at datetime(6) null,
+    user_id    int         not null,
     constraint FKfgk1klcib7i15utalmcqo7krt
         foreign key (user_id) references user (user_id)
 );
 
-create table if not exists tag
+create table tag
 (
     tag_id   int auto_increment
         primary key,
@@ -98,7 +99,7 @@ create table if not exists tag
         foreign key (user_id) references user (user_id)
 );
 
-create table if not exists note_tag
+create table note_tag
 (
     note_id int not null,
     tag_id  int not null,
@@ -108,4 +109,3 @@ create table if not exists note_tag
     constraint FKdchpnvg6njslx0ye4voybfwji
         foreign key (note_id) references note (note_id)
 );
-
