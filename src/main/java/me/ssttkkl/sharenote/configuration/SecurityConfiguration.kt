@@ -44,10 +44,10 @@ class SecurityConfiguration(val authService: AuthService) : WebSecurityConfigure
         )
     }
 
-    @Value("\${jwt.public-key}")
+    @Value("\${auth.jwt.public-key}")
     lateinit var key: RSAPublicKey
 
-    @Value("\${jwt.private-key}")
+    @Value("\${auth.jwt.private-key}")
     lateinit var priv: RSAPrivateKey
 
     override fun configure(http: HttpSecurity) {

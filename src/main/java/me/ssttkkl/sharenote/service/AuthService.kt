@@ -1,5 +1,7 @@
 package me.ssttkkl.sharenote.service
 
+import me.ssttkkl.sharenote.component.JwtIssuer
+import me.ssttkkl.sharenote.component.RefreshTokenGenerator
 import me.ssttkkl.sharenote.exception.RefreshTokenException
 import me.ssttkkl.sharenote.exception.UserAlreadyExistsException
 import me.ssttkkl.sharenote.model.entity.User
@@ -11,6 +13,7 @@ import me.ssttkkl.sharenote.payload.RefreshPayload
 import me.ssttkkl.sharenote.payload.RegisterPayload
 import me.ssttkkl.sharenote.repository.RefreshTokenRepository
 import me.ssttkkl.sharenote.repository.UserRepository
+import me.ssttkkl.sharenote.repository.findOrInsertByUser
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 class AuthService(
     val userRepo: UserRepository,
     val refreshTokenRepo: RefreshTokenRepository,
+    val refreshTokenGenerator: RefreshTokenGenerator,
 ) : UserDetailsService {
 
     @Autowired
@@ -50,14 +54,21 @@ class AuthService(
         SecurityContextHolder.getContext().authentication = authentication
 
         val user = authentication.principal as User
-        return jwtIssuer.issue(user)
+        val accessToken = jwtIssuer.issue(user)
+        val refreshToken = refreshTokenRepo.findOrInsertByUser(user) { refreshTokenGenerator.generate(user) }
+        return Authentication(accessToken.tokenValue, refreshToken.tokenValue, accessToken.expiresAt!!, user.toView())
     }
 
     fun refresh(payload: RefreshPayload): Authentication {
-        val token = refreshTokenRepo.findById(payload.refreshToken).orElseThrow {
-            RefreshTokenException()
-        }
-        return jwtIssuer.issue(token.user)
+        val refreshToken = refreshTokenRepo.findById(payload.refreshToken)
+            .orElseThrow { RefreshTokenException() }
+        val accessToken = jwtIssuer.issue(refreshToken.user)
+        return Authentication(
+            accessToken.tokenValue,
+            refreshToken.tokenValue,
+            accessToken.expiresAt!!,
+            refreshToken.user.toView()
+        )
     }
 
     @Transactional

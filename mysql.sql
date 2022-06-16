@@ -4,7 +4,7 @@ create database sharenote;
 
 use sharenote;
 
-create table user
+create table if not exists user
 (
     user_id     int auto_increment
         primary key,
@@ -15,7 +15,7 @@ create table user
     username    varchar(24)  not null
 );
 
-create table note
+create table if not exists note
 (
     note_id           int auto_increment
         primary key,
@@ -27,7 +27,7 @@ create table note
         foreign key (owner_user_id) references user (user_id)
 );
 
-create table note_invite
+create table if not exists note_invite
 (
     invite_id  varchar(36) not null
         primary key,
@@ -39,7 +39,7 @@ create table note_invite
         foreign key (note_id) references note (note_id)
 );
 
-create table note_version
+create table if not exists note_version
 (
     note_version_id int auto_increment
         primary key,
@@ -59,7 +59,7 @@ alter table note
     add constraint FKx9u7nv3tcdryjeq2qatcll8o
         foreign key (latest_version_id) references note_version (note_version_id);
 
-create table note_permission
+create table if not exists note_permission
 (
     note_id               int         not null,
     user_id               int         not null,
@@ -77,16 +77,18 @@ create table note_permission
         foreign key (deleted_at_version_id) references note_version (note_version_id)
 );
 
-create table refresh_token
+create table if not exists refresh_token
 (
-    token   varchar(255) not null
+    token      varchar(255) not null
         primary key,
-    user_id int          not null,
+    user_id    int          not null,
+    created_at datetime(6)  not null,
+    expires_at datetime(6)  not null,
     constraint FKfgk1klcib7i15utalmcqo7krt
         foreign key (user_id) references user (user_id)
 );
 
-create table tag
+create table if not exists tag
 (
     tag_id   int auto_increment
         primary key,
@@ -96,7 +98,7 @@ create table tag
         foreign key (user_id) references user (user_id)
 );
 
-create table note_tag
+create table if not exists note_tag
 (
     note_id int not null,
     tag_id  int not null,

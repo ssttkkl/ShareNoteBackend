@@ -6,8 +6,8 @@ server:
 spring:
   jpa:
     hibernate:
-      ddl-auto: none
-#    show-sql: true
+      ddl-auto: create
+  #    show-sql: true
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -17,9 +17,12 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-jwt:
-  private-key: classpath:app.key
-  public-key: classpath:app.pub
-  expires-in: 3600
-  issuer: ${JWT_ISSUER:me.ssttkkl.sharenote}
+auth:
+  jwt:
+    private-key: classpath:app.key
+    public-key: classpath:app.pub
+    expires-in: 3600
+    issuer: ${JWT_ISSUER:me.ssttkkl.sharenote}
+  refresh-token:
+    expires-in: 0
 

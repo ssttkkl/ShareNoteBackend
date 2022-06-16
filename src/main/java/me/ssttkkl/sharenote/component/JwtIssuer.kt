@@ -1,35 +1,27 @@
-package me.ssttkkl.sharenote.service
+package me.ssttkkl.sharenote.component
 
 import me.ssttkkl.sharenote.model.entity.User
-import me.ssttkkl.sharenote.model.view.Authentication
-import me.ssttkkl.sharenote.model.view.toView
 import me.ssttkkl.sharenote.repository.RefreshTokenRepository
-import me.ssttkkl.sharenote.repository.findOrInsertByUser
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.stereotype.Component
 import java.time.Instant
-import java.util.*
 
 @Component
 class JwtIssuer(
-    val refreshTokenRepo: RefreshTokenRepository,
     val jwtEncoder: JwtEncoder
 ) {
 
-    @Value("\${jwt.expires-in}")
+    @Value("\${auth.jwt.expires-in}")
     var expiresIn: Long = 3600
 
-    @Value("\${jwt.issuer}")
+    @Value("\${auth.jwt.issuer}")
     lateinit var issuer: String
 
-    private fun genRefreshToken(user: User): String {
-        return UUID.randomUUID().toString().replace("-", "")
-    }
-
-    fun issue(user: User): Authentication {
+    fun issue(user: User): Jwt {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
             .issuer(issuer)
@@ -38,8 +30,6 @@ class JwtIssuer(
             .subject(user.id.toString())
             .claim("roles", user.authorities.joinToString(" ") { it.authority })
             .build()
-        val accessToken = jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
-        val refreshToken = refreshTokenRepo.findOrInsertByUser(user) { genRefreshToken(user) }.tokenValue
-        return Authentication(accessToken, refreshToken, expiresIn, user.toView())
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims))
     }
 }

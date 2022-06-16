@@ -8,11 +8,14 @@ interface RefreshTokenRepository : JpaRepository<RefreshToken, String> {
     fun findByUserId(userID: Int): RefreshToken?
 }
 
-fun RefreshTokenRepository.findOrInsertByUser(user: User, gen: () -> String): RefreshToken {
-    val token = findByUserId(user.id)
-    if (token != null)
-        return token
-    else {
-        return save(RefreshToken(gen(), user))
+fun RefreshTokenRepository.findOrInsertByUser(user: User, gen: () -> RefreshToken): RefreshToken {
+    findByUserId(user.id)?.let { return it }
+
+    var token: RefreshToken
+    while (true) {
+        token = gen()
+        if (findById(token.tokenValue).isEmpty) {
+            return save(token)
+        }
     }
 }
