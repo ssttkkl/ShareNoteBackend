@@ -7,4 +7,4 @@ data class LoginPayload(
 
 data class RefreshPayload(
     val refreshToken: String
-    )
+)

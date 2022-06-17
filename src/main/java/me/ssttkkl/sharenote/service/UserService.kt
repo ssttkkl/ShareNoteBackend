@@ -49,7 +49,7 @@ class UserService(
     }
 
     @Transactional
-    fun modifyUserInfo(payload: ModifyUserPayload, userID: Int) {
+    fun modifyUser(payload: ModifyUserPayload, userID: Int): UserView {
         val user = userRepo.findById(userID).orElseThrow { UserNotFoundException() }
 
         if (user.passwd != passwordEncoder.encode(payload.oldPassword)) {
@@ -65,7 +65,6 @@ class UserService(
         }
         user.modifiedAt = Instant.now()
 
-        userRepo.save(user)
-
+        return userRepo.save(user).toView()
     }
 }

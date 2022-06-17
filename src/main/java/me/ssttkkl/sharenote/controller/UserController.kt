@@ -4,8 +4,8 @@ import me.ssttkkl.sharenote.controller.utils.userID
 import me.ssttkkl.sharenote.model.dto.ModifyUserPayload
 import me.ssttkkl.sharenote.model.view.UserView
 import me.ssttkkl.sharenote.model.dto.RegisterPayload
+import me.ssttkkl.sharenote.model.entity.User
 import me.ssttkkl.sharenote.service.UserService
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
@@ -26,11 +26,11 @@ class UserController(
     }
 
     @PostMapping("/users/info")
-    fun modifyUserInfo(
+    fun modifyUser(
         authentication: Authentication,
         @RequestBody body: ModifyUserPayload
-    ): ResponseEntity<Nothing?> {
-        userService.modifyUserInfo(body, authentication.userID)
-        return ResponseEntity(HttpStatus.OK)
+    ): ResponseEntity<UserView> {
+        val user = userService.modifyUser(body, authentication.userID)
+        return ResponseEntity.ok(user)
     }
 }
